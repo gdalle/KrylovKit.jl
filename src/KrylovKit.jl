@@ -26,6 +26,7 @@ using LinearAlgebra
 using Printf
 using Random
 using PackageExtensionCompat
+using ReactantCore: @trace
 const IndexRange = AbstractRange{Int}
 
 export linsolve, reallinsolve, lssolve, reallssolve

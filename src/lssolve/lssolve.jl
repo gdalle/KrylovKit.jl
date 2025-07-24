@@ -1,5 +1,5 @@
 """
-    lssolve(A::AbstractMatrix, b::AbstractVector, [λ::Real = 0]; kwargs...)
+    lssolve(A::AbstractMatrix, b::AbstractVector, [λ::Number = 0]; kwargs...)
     lssolve(f, b, [λ = 0]; kwargs...)
     # expert version:
     lssolve(f, b, algorithm, [λ = 0])
@@ -55,7 +55,7 @@ The return value is always of the form `x, info = lssolve(...)` with
       + `info.converged::Int`: takes value 0 or 1 depending on whether the solution was
         converged up to the requested tolerance
       + `info.residual`: residual `b - A*x` of the approximate solution `x`
-      + `info.normres::Real`: norm of the residual of the normal equations,
+      + `info.normres::Number`: norm of the residual of the normal equations,
         i.e. the quantity `norm(A'*(b - A*x) - λ^2 * x)` that needs to be smaller
         than the requested tolerance `tol` in order to have a converged solution
       + `info.numops::Int`: total number of times that the linear map was applied, i.e. the
@@ -76,11 +76,11 @@ Keyword arguments are given by:
     - WARN_LEVEL (only warnings)
     - STARTSTOP_LEVEL (information at the beginning and end)
     - EACHITERATION_LEVEL (progress info after every iteration)
-  - `atol::Real`: the requested accuracy, i.e. absolute tolerance, on the norm of the
+  - `atol::Number`: the requested accuracy, i.e. absolute tolerance, on the norm of the
     residual.
-  - `rtol::Real`: the requested accuracy on the norm of the residual, relative to the norm
+  - `rtol::Number`: the requested accuracy on the norm of the residual, relative to the norm
     of the right hand side `b`.
-  - `tol::Real`: the requested accuracy on the norm of the residual that is actually used by
+  - `tol::Number`: the requested accuracy on the norm of the residual that is actually used by
     the algorithm; it defaults to `max(atol, rtol*norm(b))`. So either use `atol` and `rtol`
     or directly use `tol` (in which case the value of `atol` and `rtol` will be ignored).
   - `maxiter::Integer`: the number of iterations of the algorithm. Every iteration involves
@@ -98,17 +98,17 @@ Currently, only [`LSMR`](@ref) is available and thus selected.
 """
 function lssolve end
 
-function lssolve(f, b, λ::Real=0;
-                 rtol::Real=KrylovDefaults.tol[],
-                 atol::Real=KrylovDefaults.tol[],
-                 tol::Real=max(atol, rtol * norm(b)),
+function lssolve(f, b, λ::Number=0;
+                 rtol::Number=KrylovDefaults.tol[],
+                 atol::Number=KrylovDefaults.tol[],
+                 tol::Number=max(atol, rtol * norm(b)),
                  kwargs...)
     alg = LSMR(; tol=tol, kwargs...)
     return lssolve(f, b, alg, λ)
 end
 
 """
-    reallssolve(f, b, algorithm, [λ::Real = 0])
+    reallssolve(f, b, algorithm, [λ::Number = 0])
 
 Compute a least squares solution `x` to the problem `f(x) ≈ b` where `f`
 encodes a real linear map, i.e. a solution `x` that minimizes `norm(b - f(x))`.
@@ -118,7 +118,7 @@ Return the approximate solution `x` and a `ConvergenceInfo` structure.
 
     A function `f` is said to implement a real linear map if it satisfies 
     `f(add(x,y)) = add(f(x), f(y)` and `f(scale(x, α)) = scale(f(x), α)` for vectors `x`
-    and `y` and scalars `α::Real`. Note that this is possible even when the vectors are
+    and `y` and scalars `α::Number`. Note that this is possible even when the vectors are
     represented using complex arithmetic. For example, the map `f=x-> x + conj(x)`
     represents a real linear map that is not (complex) linear, as it does not satisfy
     `f(scale(x, α)) = scale(f(x), α)` for complex scalars `α`. Note that complex linear
@@ -171,7 +171,7 @@ The return value is always of the form `x, info = reallssolve(...)` with
       + `info.converged::Int`: takes value 0 or 1 depending on whether the solution was
         converged up to the requested tolerance
       + `info.residual`: residual `b - A*x` of the approximate solution `x`
-      + `info.normres::Real`: norm of the residual of the normal equations,
+      + `info.normres::Number`: norm of the residual of the normal equations,
         i.e. the quantity `norm(A'*(b - A*x) - λ^2 * x)` that needs to be smaller
         than the requested tolerance `tol` in order to have a converged solution
       + `info.numops::Int`: total number of times that the linear map was applied, i.e. the
@@ -185,7 +185,7 @@ The final (expert) method, without default values and keyword arguments, is the 
 finally called, and can also be used directly. Here, one specifies the algorithm explicitly.
 Currently, only [`LSMR`](@ref) is available and thus selected.
 """
-function reallssolve(f, b, alg, λ::Real=0)
+function reallssolve(f, b, alg, λ::Number=0)
     x, info = lssolve(f, RealVec(b), alg, λ)
     newinfo = ConvergenceInfo(info.converged, info.residual[], info.normres, info.numiter,
                               info.numops)

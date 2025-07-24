@@ -54,27 +54,27 @@ struct ModifiedGramSchmidt2 <: Reorthogonalizer end
 
 # Iterative reorthogonalization
 """
-    ClassicalGramSchmidtIR(η::Real = 1/sqrt(2))
+    ClassicalGramSchmidtIR(η::Number = 1/sqrt(2))
 
 Represents the classical Gram Schmidt algorithm with iterative (i.e. zero or more)
 reorthogonalization until the norm of the vector after an orthogonalization step has not
 decreased by a factor smaller than `η` with respect to the norm before the step. The
 default value corresponds to the Daniel-Gragg-Kaufman-Stewart condition.
 """
-struct ClassicalGramSchmidtIR{S<:Real} <: Reorthogonalizer
+struct ClassicalGramSchmidtIR{S<:Number} <: Reorthogonalizer
     η::S
 end
 ClassicalGramSchmidtIR() = ClassicalGramSchmidtIR(1 / sqrt(2)) # Daniel-Gragg-Kaufman-Stewart
 
 """
-    ModifiedGramSchmidtIR(η::Real = 1/sqrt(2))
+    ModifiedGramSchmidtIR(η::Number = 1/sqrt(2))
 
 Represents the modified Gram Schmidt algorithm with iterative (i.e. zero or more)
 reorthogonalization until the norm of the vector after an orthogonalization step has not
 decreased by a factor smaller than `η` with respect to the norm before the step. The
 default value corresponds to the Daniel-Gragg-Kaufman-Stewart condition.
 """
-struct ModifiedGramSchmidtIR{S<:Real} <: Reorthogonalizer
+struct ModifiedGramSchmidtIR{S<:Number} <: Reorthogonalizer
     η::S
 end
 ModifiedGramSchmidtIR() = ModifiedGramSchmidtIR(1 / sqrt(2)) # Daniel-Gragg-Kaufman-Stewart
@@ -107,7 +107,7 @@ Use `Arnoldi` for non-symmetric or non-Hermitian linear operators.
 
 See also: [Factorization types](@ref), [`eigsolve`](@ref), [`exponentiate`](@ref), [`Arnoldi`](@ref), [`Orthogonalizer`](@ref)
 """
-struct Lanczos{O<:Orthogonalizer,S<:Real} <: KrylovAlgorithm
+struct Lanczos{O<:Orthogonalizer,S<:Number} <: KrylovAlgorithm
     orth::O
     krylovdim::Int
     maxiter::Int
@@ -118,7 +118,7 @@ end
 function Lanczos(;
                  krylovdim::Int=KrylovDefaults.krylovdim[],
                  maxiter::Int=KrylovDefaults.maxiter[],
-                 tol::Real=KrylovDefaults.tol[],
+                 tol::Number=KrylovDefaults.tol[],
                  orth::Orthogonalizer=KrylovDefaults.orth,
                  eager::Bool=false,
                  verbosity::Int=KrylovDefaults.verbosity[])
@@ -132,7 +132,7 @@ end
             orth=KrylovDefaults.orth,
             eager=false,
             verbosity=KrylovDefaults.verbosity[],
-            qr_tol::Real=KrylovDefaults.tol[])
+            qr_tol::Number=KrylovDefaults.tol[])
 
 The block version of [`Lanczos`](@ref) is suited for solving eigenvalue problems with repeated extremal eigenvalues.
 Its implementation is mainly based on *Golub, G. H., & Van Loan, C. F. (2013). Matrix Computations* (4th ed., pp. 566–569).
@@ -148,20 +148,20 @@ Use `Arnoldi` for non-symmetric or non-Hermitian linear operators.
 
 See also: [Factorization types](@ref), [`eigsolve`](@ref), [`Arnoldi`](@ref), [`Orthogonalizer`](@ref)
 """
-struct BlockLanczos{O<:Orthogonalizer,S<:Real} <: KrylovAlgorithm
+struct BlockLanczos{O<:Orthogonalizer,S<:Number} <: KrylovAlgorithm
     orth::O
     krylovdim::Int
     maxiter::Int
     tol::S
-    qr_tol::Real
+    qr_tol::Number
     eager::Bool
     verbosity::Int
 end
 function BlockLanczos(;
                       krylovdim::Int=KrylovDefaults.blockkrylovdim[],
                       maxiter::Int=KrylovDefaults.maxiter[],
-                      tol::Real=KrylovDefaults.tol[],
-                      qr_tol::Real=KrylovDefaults.tol[],
+                      tol::Number=KrylovDefaults.tol[],
+                      qr_tol::Number=KrylovDefaults.tol[],
                       orth::Orthogonalizer=KrylovDefaults.orth,
                       eager::Bool=false,
                       verbosity::Int=KrylovDefaults.verbosity[])
@@ -187,7 +187,7 @@ verbosity level `verbosity` amounts to printing warnings upon lack of convergenc
 
 See also: [`svdsolve`](@ref), [`Orthogonalizer`](@ref)
 """
-struct GKL{O<:Orthogonalizer,S<:Real} <: KrylovAlgorithm
+struct GKL{O<:Orthogonalizer,S<:Number} <: KrylovAlgorithm
     orth::O
     krylovdim::Int
     maxiter::Int
@@ -198,7 +198,7 @@ end
 function GKL(;
              krylovdim::Int=KrylovDefaults.krylovdim[],
              maxiter::Int=KrylovDefaults.maxiter[],
-             tol::Real=KrylovDefaults.tol[],
+             tol::Number=KrylovDefaults.tol[],
              orth::Orthogonalizer=KrylovDefaults.orth,
              eager::Bool=false,
              verbosity::Int=KrylovDefaults.verbosity[])
@@ -229,7 +229,7 @@ Use `Lanczos` for real symmetric or complex Hermitian linear operators.
 See also: [`eigsolve`](@ref), [`exponentiate`](@ref), [`Lanczos`](@ref),
 [`Orthogonalizer`](@ref)
 """
-struct Arnoldi{O<:Orthogonalizer,S<:Real} <: KrylovAlgorithm
+struct Arnoldi{O<:Orthogonalizer,S<:Number} <: KrylovAlgorithm
     orth::O
     krylovdim::Int
     maxiter::Int
@@ -240,7 +240,7 @@ end
 function Arnoldi(;
                  krylovdim::Int=KrylovDefaults.krylovdim[],
                  maxiter::Int=KrylovDefaults.maxiter[],
-                 tol::Real=KrylovDefaults.tol[],
+                 tol::Number=KrylovDefaults.tol[],
                  orth::Orthogonalizer=KrylovDefaults.orth,
                  eager::Bool=false,
                  verbosity::Int=KrylovDefaults.verbosity[])
@@ -264,7 +264,7 @@ subspace will also be expanded to size `krylovdim+1` by adding ``x_k - x_{k-1}``
 known as the LOPCG correction and was suggested by Money and Ye. With `krylovdim=2`, this
 algorithm becomes equivalent to `LOPCG`.
 """
-struct GolubYe{O<:Orthogonalizer,S<:Real} <: KrylovAlgorithm
+struct GolubYe{O<:Orthogonalizer,S<:Number} <: KrylovAlgorithm
     orth::O
     krylovdim::Int
     maxiter::Int
@@ -274,7 +274,7 @@ end
 function GolubYe(;
                  krylovdim::Int=KrylovDefaults.krylovdim[],
                  maxiter::Int=KrylovDefaults.maxiter[],
-                 tol::Real=KrylovDefaults.tol[],
+                 tol::Number=KrylovDefaults.tol[],
                  orth::Orthogonalizer=KrylovDefaults.orth,
                  verbosity::Int=KrylovDefaults.verbosity[])
     return GolubYe(orth, krylovdim, maxiter, tol, verbosity)
@@ -297,14 +297,14 @@ upon lack of convergence.
 See also: [`linsolve`](@ref), [`MINRES`](@ref), [`GMRES`](@ref), [`BiCG`](@ref), [`LSMR`](@ref),
 [`BiCGStab`](@ref)
 """
-struct CG{S<:Real} <: LinearSolver
+struct CG{S<:Number} <: LinearSolver
     maxiter::Int
     tol::S
     verbosity::Int
 end
 function CG(;
             maxiter::Integer=KrylovDefaults.maxiter[],
-            tol::Real=KrylovDefaults.tol[],
+            tol::Number=KrylovDefaults.tol[],
             verbosity::Int=KrylovDefaults.verbosity[])
     return CG(maxiter, tol, verbosity)
 end
@@ -332,7 +332,7 @@ cycles. The total iteration count, i.e. the number of expansion steps, is roughl
 See also: [`linsolve`](@ref), [`BiCG`](@ref), [`BiCGStab`](@ref), [`CG`](@ref), [`LSMR`](@ref),
 [`MINRES`](@ref)
 """
-struct GMRES{O<:Orthogonalizer,S<:Real} <: LinearSolver
+struct GMRES{O<:Orthogonalizer,S<:Number} <: LinearSolver
     orth::O
     maxiter::Int
     krylovdim::Int
@@ -342,7 +342,7 @@ end
 function GMRES(;
                krylovdim::Integer=KrylovDefaults.krylovdim[],
                maxiter::Integer=KrylovDefaults.maxiter[],
-               tol::Real=KrylovDefaults.tol[],
+               tol::Number=KrylovDefaults.tol[],
                orth::Orthogonalizer=KrylovDefaults.orth,
                verbosity::Int=KrylovDefaults.verbosity[])
     return GMRES(orth, maxiter, krylovdim, tol, verbosity)
@@ -366,14 +366,14 @@ end
 See also: [`linsolve`](@ref), [`CG`](@ref), [`GMRES`](@ref), [`BiCG`](@ref), [`LSMR`](@ref),
 [`BiCGStab`](@ref)
 """
-struct MINRES{S<:Real} <: LinearSolver
+struct MINRES{S<:Number} <: LinearSolver
     maxiter::Int
     tol::S
     verbosity::Int
 end
 function MINRES(;
                 maxiter::Integer=KrylovDefaults.maxiter[],
-                tol::Real=KrylovDefaults.tol[],
+                tol::Number=KrylovDefaults.tol[],
                 verbosity::Int=KrylovDefaults.verbosity[])
     return MINRES(maxiter, tol, verbosity)
 end
@@ -394,14 +394,14 @@ end
 See also: [`linsolve`](@ref), [`GMRES`](@ref), [`CG`](@ref), [`BiCGStab`](@ref), [`LSMR`](@ref),
 [`MINRES`](@ref)
 """
-struct BiCG{S<:Real} <: LinearSolver
+struct BiCG{S<:Number} <: LinearSolver
     maxiter::Int
     tol::S
     verbosity::Int
 end
 function BiCG(;
               maxiter::Integer=KrylovDefaults.maxiter[],
-              tol::Real=KrylovDefaults.tol[],
+              tol::Number=KrylovDefaults.tol[],
               verbosity::Int=KrylovDefaults.verbosity[])
     return BiCG(maxiter, tol, verbosity)
 end
@@ -418,14 +418,14 @@ end
 See also: [`linsolve`](@ref), [`GMRES`](@ref), [`CG`](@ref), [`BiCG`](@ref), [`LSMR`](@ref),
 [`MINRES`](@ref)
 """
-struct BiCGStab{S<:Real} <: LinearSolver
+struct BiCGStab{S<:Number} <: LinearSolver
     maxiter::Int
     tol::S
     verbosity::Int
 end
 function BiCGStab(;
                   maxiter::Integer=KrylovDefaults.maxiter[],
-                  tol::Real=KrylovDefaults.tol[],
+                  tol::Number=KrylovDefaults.tol[],
                   verbosity::Int=KrylovDefaults.verbosity[])
     return BiCGStab(maxiter, tol, verbosity)
 end
@@ -454,7 +454,7 @@ The default verbosity level `verbosity` amounts to printing warnings upon lack o
 
 See also: [`lssolve`](@ref)
 """
-struct LSMR{O<:Orthogonalizer,S<:Real} <: LeastSquaresSolver
+struct LSMR{O<:Orthogonalizer,S<:Number} <: LeastSquaresSolver
     orth::O
     maxiter::Int
     krylovdim::Int
@@ -464,7 +464,7 @@ end
 function LSMR(;
               krylovdim::Integer=KrylovDefaults.krylovdim[],
               maxiter::Integer=KrylovDefaults.maxiter[],
-              tol::Real=KrylovDefaults.tol[],
+              tol::Number=KrylovDefaults.tol[],
               orth::Orthogonalizer=ModifiedGramSchmidt(),
               verbosity::Int=KrylovDefaults.verbosity[])
     return LSMR(orth, maxiter, krylovdim, tol, verbosity)

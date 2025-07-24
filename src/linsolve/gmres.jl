@@ -6,7 +6,7 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
     α₁ = convert(T, a₁)::T
     # Continue computing r = b - a₀ * x₀ - a₁ * operator(x₀)
     r = scale(b, one(T))
-    r = iszero(α₀) ? r : add!!(r, x₀, -α₀)
+    r = add!!(r, x₀, -α₀)
     r = add!!(r, y₀, -α₁)
     x = scale!!(zerovector(r), x₀, 1)
     β = norm(r)
@@ -16,18 +16,6 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
     maxiter = alg.maxiter
     krylovdim = alg.krylovdim
     tol::S = alg.tol
-
-    # Check for early return
-    if β < tol
-        if alg.verbosity >= STARTSTOP_LEVEL
-            @info """GMRES linsolve converged without any iterations:
-            * norm of residual = $(normres2string(β))
-            * number of operations = 1"""
-        end
-        return (x, ConvergenceInfo(1, r, β, 0, 1))
-    elseif alg.verbosity >= STARTSTOP_LEVEL
-        @info "GMRES linsolve starts with norm of residual = $(normres2string(β))"
-    end
 
     # Initialize data structures
     y = Vector{T}(undef, krylovdim + 1)
@@ -53,7 +41,7 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
         β = convert(S, abs(y[2]))
 
         while (β > tol && length(fact) < krylovdim) # inner arnoldi loop
-            if alg.verbosity >= EACHITERATION_LEVEL
+            @trace if alg.verbosity >= EACHITERATION_LEVEL
                 @info "GMRES linsolve in iteration $numiter; step $k: normres = $(normres2string(β))"
             end
             fact = expand!(iter, fact; verbosity=SILENT_LEVEL)
@@ -94,7 +82,7 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
             x = add!!(x, V[i], y[i])
         end
 
-        if β > tol
+        @trace if β > tol
             # Recompute residual without reevaluating operator
             w = residual(fact)
             push!(V, scale!!(w, 1 / normres(fact)))
@@ -109,24 +97,23 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
             r = add!!(r, apply(operator, x, α₀, α₁), -1)
             numops += 1
             β = norm(r)
-            if β < tol
-                if alg.verbosity >= STARTSTOP_LEVEL
+            @trace if β < tol
+                @trace if alg.verbosity >= STARTSTOP_LEVEL
                     @info """GMRES linsolve converged at iteration $numiter, step $k:
                     * norm of residual = $(normres2string(β))
                     * number of operations = $numops"""
                 end
-                return (x, ConvergenceInfo(1, r, β, numiter, numops))
+                break
             end
         end
-        if numiter >= maxiter
-            if alg.verbosity >= WARN_LEVEL
+        @trace if numiter >= maxiter
+            @trace if alg.verbosity >= WARN_LEVEL
                 @warn """GMRES linsolve stopped without converging after $numiter iterations:
                 * norm of residual = $(normres2string(β))
                 * number of operations = $numops"""
             end
-            return (x, ConvergenceInfo(0, r, β, numiter, numops))
         end
-        if alg.verbosity >= EACHITERATION_LEVEL
+        @trace if alg.verbosity >= EACHITERATION_LEVEL
             @info "GMRES linsolve in iteration $numiter; step $k: normres = $(normres2string(β))"
         end
 
@@ -134,4 +121,6 @@ function linsolve(operator, b, x₀, alg::GMRES, a₀::Number=0, a₁::Number=1;
         iter = ArnoldiIterator(operator, r, alg.orth)
         fact = initialize!(iter, fact; verbosity=SILENT_LEVEL)
     end
+
+    return (x, ConvergenceInfo(1, r, β, numiter, numops))
 end

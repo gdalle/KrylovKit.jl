@@ -29,7 +29,7 @@ The return value is always of the form `x, info = linsolve(...)` with
       + `info.converged::Int`: takes value 0 or 1 depending on whether the solution was
         converged up to the requested tolerance
       + `info.residual`: residual `b - f(x)` of the approximate solution `x`
-      + `info.normres::Real`: norm of the residual, i.e. `norm(info.residual)`
+      + `info.normres::Number`: norm of the residual, i.e. `norm(info.residual)`
       + `info.numops::Int`: total number of times that the linear map was applied, i.e. the
         number of times that `f` was called, or a vector was multiplied with `A`
       + `info.numiter::Int`: number of times the Krylov subspace was restarted (see below)
@@ -48,11 +48,11 @@ Keyword arguments are given by:
     - WARN_LEVEL (only warnings)
     - STARTSTOP_LEVEL (information at the beginning and end)
     - EACHITERATION_LEVEL (progress info after every iteration)
-  - `atol::Real`: the requested accuracy, i.e. absolute tolerance, on the norm of the
+  - `atol::Number`: the requested accuracy, i.e. absolute tolerance, on the norm of the
     residual.
-  - `rtol::Real`: the requested accuracy on the norm of the residual, relative to the norm
+  - `rtol::Number`: the requested accuracy on the norm of the residual, relative to the norm
     of the right hand side `b`.
-  - `tol::Real`: the requested accuracy on the norm of the residual that is actually used by
+  - `tol::Number`: the requested accuracy on the norm of the residual that is actually used by
     the algorithm; it defaults to `max(atol, rtol*norm(b))`. So either use `atol` and `rtol`
     or directly use `tol` (in which case the value of `atol` and `rtol` will be ignored).
   - `krylovdim::Integer`: the maximum dimension of the Krylov subspace that will be
@@ -130,9 +130,9 @@ function linselector(f,
                      isposdef::Bool=false,
                      krylovdim::Int=KrylovDefaults.krylovdim[],
                      maxiter::Int=KrylovDefaults.maxiter[],
-                     rtol::Real=KrylovDefaults.tol[],
-                     atol::Real=KrylovDefaults.tol[],
-                     tol::Real=max(atol, rtol * norm(b)),
+                     rtol::Number=KrylovDefaults.tol[],
+                     atol::Number=KrylovDefaults.tol[],
+                     tol::Number=max(atol, rtol * norm(b)),
                      orth=KrylovDefaults.orth,
                      verbosity::Int=KrylovDefaults.verbosity[])
     if (T <: Real && issymmetric) || ishermitian
@@ -157,9 +157,9 @@ function linselector(A::AbstractMatrix,
                      isposdef::Bool=ishermitian ? LinearAlgebra.isposdef(A) : false,
                      krylovdim::Int=KrylovDefaults.krylovdim[],
                      maxiter::Int=KrylovDefaults.maxiter[],
-                     rtol::Real=KrylovDefaults.tol[],
-                     atol::Real=KrylovDefaults.tol[],
-                     tol::Real=max(atol, rtol * norm(b)),
+                     rtol::Number=KrylovDefaults.tol[],
+                     atol::Number=KrylovDefaults.tol[],
+                     tol::Number=max(atol, rtol * norm(b)),
                      orth=KrylovDefaults.orth,
                      verbosity::Int=KrylovDefaults.verbosity[])
     if (T <: Real && issymmetric) || ishermitian
@@ -178,7 +178,7 @@ function linselector(A::AbstractMatrix,
 end
 
 """
-    reallinsolve(f, b, x₀, algorithm, [a₀::Real = 0, a₁::Real = 1]; alg_rrule=algorithm)
+    reallinsolve(f, b, x₀, algorithm, [a₀::Number = 0, a₁::Number = 1]; alg_rrule=algorithm)
 
 Compute a solution `x` to the linear system `a₀ * x + a₁ * f(x) = b`, using a starting guess
 `x₀`, where `f` represents a real linear map.
@@ -188,7 +188,7 @@ Return the approximate solution `x` and a `ConvergenceInfo` structure.
 
     A function `f` is said to implement a real linear map if it satisfies 
     `f(add(x,y)) = add(f(x), f(y)` and `f(scale(x, α)) = scale(f(x), α)` for vectors `x`
-    and `y` and scalars `α::Real`. Note that this is possible even when the vectors are
+    and `y` and scalars `α::Number`. Note that this is possible even when the vectors are
     represented using complex arithmetic. For example, the map `f=x-> x + conj(x)`
     represents a real linear map that is not (complex) linear, as it does not satisfy
     `f(scale(x, α)) = scale(f(x), α)` for complex scalars `α`. Note that complex linear
@@ -222,7 +222,7 @@ The return value is always of the form `x, info = linsolve(...)` with
       + `info.converged::Int`: takes value 0 or 1 depending on whether the solution was
         converged up to the requested tolerance
       + `info.residual`: residual `b - f(x)` of the approximate solution `x`
-      + `info.normres::Real`: norm of the residual, i.e. `norm(info.residual)`
+      + `info.normres::Number`: norm of the residual, i.e. `norm(info.residual)`
       + `info.numops::Int`: total number of times that the linear map was applied, i.e. the
         number of times that `f` was called, or a vector was multiplied with `A`
       + `info.numiter::Int`: number of times the Krylov subspace was restarted (see below)
@@ -245,7 +245,7 @@ and our `maxiter` parameter counts the number of outer iterations, i.e. restart 
 used, and therefore no restarts are required. Therefore, we pass `krylovdim*maxiter` as the
 maximal number of CG iterations that can be used by the `CG` algorithm.
 """
-function reallinsolve(f, b, x₀, alg, a₀::Real=0, a₁::Real=1)
+function reallinsolve(f, b, x₀, alg, a₀::Number=0, a₁::Number=1)
     x, info = linsolve(f, RealVec(b), RealVec(x₀), alg, a₀, a₁)
 
     newinfo = ConvergenceInfo(info.converged, info.residual[], info.normres, info.numiter,
